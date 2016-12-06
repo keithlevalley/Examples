@@ -1,4 +1,6 @@
-﻿#Detection
+#Detection
+
+# Checks to see if anything exists inside the Default Desktop
 $files = Get-ChildItem -Path "C:\Users\Default\Desktop" -Name
 if ($files.Count -gt 0)
 {
@@ -6,17 +8,21 @@ if ($files.Count -gt 0)
 } else {echo $false}
 
 
-#Remidiation
+#Remediation
 
+# Gets all the users excluding the Public user
 $users = Get-ChildItem -Path "C:\Users" -Name -Exclude "Public"
 
+# Creates a folder called ArchivedDocs + UserName for every user
 foreach ($user in $users)
 {
     New-Item "C:\ArchivedDocs" -Name $user"_Archive" -ItemType Directory -ErrorAction SilentlyContinue
 }
 
+# Get all the files inside the Default Desktop
 $files = Get-ChildItem -Path "C:\Users\Default\Desktop" -File -Name
 
+# For every user, if a file in the default desktop exists on the users desktop then move that file to the archivedDocs folder
 foreach ($user in $users)
 {
     $temp = $user+"_Archive"
@@ -29,6 +35,7 @@ foreach ($user in $users)
 
 }
 
+# Do the same thing as above for the default folder
 if (-not $users.Contains("default"))
 {
     New-Item "C:\ArchivedDocs" -Name "Default" -ItemType Directory
@@ -39,6 +46,7 @@ if (-not $users.Contains("default"))
     }
 }
 
+# Remove access rights to the ArchivedDocs folder.  This is probably bad code...but it works
 $Acl = Get-Acl -Path "C:\ArchivedDocs"
 
 $Ar = $acl.Access | Where-Object -Property IdentityReference -EQ "BUILTIN\Users"
